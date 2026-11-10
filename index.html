@@ -88,21 +88,23 @@ svg#g{width:100%;max-width:760px;height:auto;display:block;margin:8px auto 0;bor
 #tbar .ind{min-width:140px;text-align:center}
 .hide{display:none!important}
 @media (max-width:600px){
-  :root{--fs:16px}
+  :root{--bw:calc((100vw - 14px) / 7.2);--fs:10px}
   header h1{font-size:1.15rem}
-  main{padding:6px 6px 90px}
-  .card{padding:10px}
-  .chain{flex-direction:column;align-items:stretch;gap:0;padding-top:28px}
-  .arr{width:28px;height:22px;transform:rotate(90deg);align-self:center;margin:3px 0}
-  .group{flex-direction:column;align-items:stretch;padding:22px 10px 10px}
-  .autos{flex-direction:column;align-items:stretch;gap:0}
-  .auto,.auto.io,.auto.q{width:100%}
-  .auto.gen{height:calc(var(--fs) * 6)}
-  .auto.ex{height:calc(var(--fs) * 6)}
-  .auto.io.ex{height:calc(var(--fs) * 8.2)}
-  .auto .calc{height:calc(var(--fs) * 2.8)}
-  .auto input[type=text]{width:46%}
-  .auto input[type=range]{width:96%}
+  main{padding:6px 2px 90px}
+  .card{padding:8px 4px}
+  .arr{width:calc(var(--bw) * .16)}
+  .auto{padding:3px}
+  .auto.io{width:calc(var(--bw) * .8)}
+  .auto.q{width:calc(var(--bw) * 1.1)}
+  .auto.gen{height:calc(var(--bw) * 2.3)}
+  .auto.ex{height:calc(var(--bw) * 2.6)}
+  .auto .nm{font-size:calc(var(--fs) * 1.05);hyphens:auto;overflow-wrap:anywhere}
+  .auto .vb{font-size:calc(var(--fs) * .95);hyphens:auto;overflow-wrap:anywhere}
+  .auto .calc{height:calc(var(--bw) * 1.1);font-size:var(--fs);overflow-wrap:anywhere}
+  .auto input[type=text]{width:92%;font-size:calc(var(--fs) * 1.2);border-width:2px;padding:1px 0}
+  .auto .val{font-size:calc(var(--fs) * 1.15)}
+  .auto .big{font-size:calc(var(--fs) * 1.5)}
+  .auto button{padding:1px 6px;font-size:var(--fs)}
   .prow{max-width:none;flex-wrap:wrap}
   .prow input[type=range]{flex:1 1 100%;order:3;min-width:0}
   #tbar{gap:6px;padding:6px 10px}
