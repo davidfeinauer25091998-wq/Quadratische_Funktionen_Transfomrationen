@@ -42,8 +42,9 @@ main{padding:6px 10px 90px;display:grid;gap:16px}
 .autos{display:flex;align-items:center;gap:calc(var(--bw) * .03);flex-wrap:nowrap}
 .auto{flex:none;width:var(--bw);font-size:var(--fs);color:#fff;border-radius:calc(var(--fs) * 1.1);padding:calc(var(--fs) * .4);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;overflow:hidden;box-shadow:0 4px 12px rgba(20,30,60,.2)}
 .auto.gen{height:calc(var(--bw) * 1.35)}
-.auto.ex{height:calc(var(--bw) * 1.15);box-shadow:none}
-.auto.ex .calc{background:rgba(255,255,255,.94);color:#111;border-top:none;border-radius:calc(var(--fs) * .7);padding:0 .3em;margin-top:calc(var(--fs) * .3)}
+.auto.ex{height:calc(var(--bw) * .95);box-shadow:none}
+.auto.ex .calc{background:rgba(255,255,255,.94);color:#111;border-top:none;border-radius:calc(var(--fs) * .7);padding:0 .3em;margin-top:calc(var(--fs) * .3);height:calc(var(--fs) * 2.4)}
+.cx{white-space:nowrap}
 .auto.ex .lb{font-size:calc(var(--fs) * .85);font-weight:600;opacity:.9}
 .sq{color:#1f5fbf;font-weight:700}
 .auto.io{width:calc(var(--bw) * .9)}
@@ -97,10 +98,11 @@ svg#g{width:100%;max-width:760px;height:auto;display:block;margin:8px auto 0;bor
   .auto.io{width:calc(var(--bw) * .8)}
   .auto.q{width:calc(var(--bw) * 1.1)}
   .auto.gen{height:calc(var(--bw) * 2.3)}
-  .auto.ex{height:calc(var(--bw) * 2.6)}
+  .auto.ex{height:calc(var(--bw) * 1.9)}
   .auto .nm{font-size:calc(var(--fs) * 1.05);hyphens:auto;overflow-wrap:anywhere}
   .auto .vb{font-size:calc(var(--fs) * .95);hyphens:auto;overflow-wrap:anywhere}
-  .auto .calc{height:calc(var(--bw) * 1.1);font-size:var(--fs);overflow-wrap:anywhere}
+  .auto .calc{font-size:var(--fs)}
+  .auto.ex .calc{height:calc(var(--bw) * .5);padding:0}
   .auto input[type=text]{width:92%;font-size:calc(var(--fs) * 1.2);border-width:2px;padding:1px 0}
   .auto .val{font-size:calc(var(--fs) * 1.15)}
   .auto .big{font-size:calc(var(--fs) * 1.5)}
@@ -182,7 +184,7 @@ var STEP={a:0.1,e:0.5,d:0.5};
 var idx=0,S={x:2,a:1,e:0,d:0};
 var ARROW='<svg class="arr" viewBox="0 0 30 24" aria-hidden="true"><path d="M2 12H24M17 4L26 12L17 20" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 var SQ='<span class="sq">²</span>';
-var VERB_GEN={q:"quadriere die Zahl",e:"subtrahiere e",a:"multipliziere mit a",d:"addiere d"};
+var VERB_GEN={q:"quadriere die Zahl",e:"subtrahiere c",a:"multipliziere mit a",d:"addiere d"};
 
 function $(i){return document.getElementById(i)}
 function el(n,attrs,txt){var e=document.createElementNS(NS,n);for(var k in attrs)e.setAttribute(k,attrs[k]);if(txt!=null)e.textContent=txt;return e}
@@ -190,7 +192,7 @@ function r1(v){return Math.round(v*10)/10}
 function fmt(v){var r=r1(v);if(Object.is(r,-0))r=0;return String(r).replace(".",",").replace("-","\u2212")}
 function fmtP(v){return r1(v)<0?"("+fmt(v)+")":fmt(v)}
 function fmt2(v){var r=Math.round(v*100)/100;if(Object.is(r,-0))r=0;return r.toFixed(2).replace(".",",").replace("-","\u2212")}
-function xlim(){return idx<=1?[-3.5,3.5]:[-6,6]}
+function xlim(){return [-6,6]}
 function parse(s){
   s=String(s).trim().replace(/\u2212/g,"-").replace(",",".");
   if(!/^[-+]?(\d+\.?\d*|\.\d+)$/.test(s))return NaN;
@@ -247,7 +249,7 @@ function drawGraph(){
   for(i=VIEW.xmin;i<=VIEW.xmax;i+=2){
     if(i!==0)g.appendChild(el("text",{x:X(i),y:Y(0)+18,"text-anchor":"middle","font-size":13,fill:"var(--muted)"},fmt(i)));
   }
-  for(i=VIEW.ymin;i<=VIEW.ymax;i+=2){
+  for(i=Math.ceil(VIEW.ymin/2)*2;i<=VIEW.ymax;i+=2){
     if(i!==0)g.appendChild(el("text",{x:X(0)-8,y:Y(i)+4,"text-anchor":"end","font-size":13,fill:"var(--muted)"},fmt(i)));
   }
   g.appendChild(el("text",{x:W-6,y:Y(0)-10,"text-anchor":"end","font-size":15,"font-style":"italic",fill:"var(--axis)"},"x"));
@@ -283,11 +285,26 @@ function drawGraph(){
     tx.appendChild(el("tspan",{},"|"));tx.appendChild(el("tspan",{fill:"var(--td)"},fmt(v[1])));
     tx.appendChild(el("tspan",{},")"));g.appendChild(tx);
   }
+  if(idx>=1){
+    var parts=[["f(x) = ",""]];
+    if(has("a"))parts.push([fmt(S.a),"var(--ta)"],[" · ",""]);
+    if(has("e"))parts.push(["(x "+(S.e<0?"+ ":"\u2212 "),""],[fmt(Math.abs(S.e)),"var(--te)"],[")",""]);
+    else parts.push(["x",""]);
+    parts.push(["\u00b2","var(--q)"]);
+    if(has("d"))parts.push([S.d<0?" \u2212 ":" + ",""],[fmt(Math.abs(S.d)),"var(--td)"]);
+    var et=el("text",{x:PAD+10,y:PAD+26,"font-size":18,"font-weight":700,fill:"var(--ink)"});
+    parts.forEach(function(q){var t=el("tspan",q[1]?{fill:q[1]}:{},q[0]);et.appendChild(t)});
+    g.appendChild(et);
+    try{
+      var eb=et.getBBox();
+      g.insertBefore(el("rect",{x:eb.x-8,y:eb.y-4,width:eb.width+16,height:eb.height+8,rx:8,fill:"var(--card)",opacity:.9,stroke:"var(--line)"}),et);
+    }catch(err){}
+  }
 }
 
 /* Automaten */
 function autoBox(cls,mode,name,verbal,calc){
-  return '<div class="auto '+cls+' '+mode+'"><div class="top">'+(mode==="ex"?"":'<div class="nm">'+name+'</div>')+(verbal?'<div class="vb">'+verbal+'</div>':'')+'</div>'+(mode==="ex"?'<div class="calc">'+(calc||"")+'</div>':'')+'</div>';
+  return '<div class="auto '+cls+' '+mode+'"><div class="top">'+(mode==="ex"?"":'<div class="nm">'+name+'</div>')+(verbal?'<div class="vb">'+verbal+'</div>':'')+'</div>'+(mode==="ex"?'<div class="calc"><span class="cx">'+(calc||"")+'</span></div>':'')+'</div>';
 }
 function renderAutos(){
   var ops=SECTIONS[idx].ops;
@@ -299,9 +316,9 @@ function renderAutos(){
     if(op==="?")return autoBox("q","ex","","","?");
     var verbal;
     if(op==="q"){ex=has("e")?"("+ex+")"+SQ:fmtP(S.x)+SQ;verbal=VERB_GEN.q}
-    else if(op==="e"){ex=fmt(S.x)+" − "+fmtP(S.e);verbal="subtrahiere "+fmtP(S.e)}
-    else if(op==="a"){ex=ex+" · "+fmtP(S.a);verbal="multipliziere mit "+fmtP(S.a)}
-    else{ex=ex+" + "+fmtP(S.d);verbal="addiere "+fmtP(S.d)}
+    else if(op==="e"){ex=fmt(S.x)+"\u2009−\u2009"+fmtP(S.e);verbal="subtrahiere "+fmtP(S.e)}
+    else if(op==="a"){ex=ex+"\u2009·\u2009"+fmtP(S.a);verbal="multipliziere mit "+fmtP(S.a)}
+    else{ex=ex+"\u2009+\u2009"+fmtP(S.d);verbal="addiere "+fmtP(S.d)}
     return autoBox(op,"ex",nameOf(op,false),verbal,ex);
   }).join(ARROW);
   var lab=idx===6;
@@ -310,7 +327,7 @@ function renderAutos(){
 }
 function sp(c,t){return '<span class="'+c+'">'+t+'</span>'}
 function renderEquations(){
-  var e=has("e")?"(x − "+sp("ce","e")+")"+sp("cq","²"):"x"+sp("cq","²");
+  var e=has("e")?"(x − "+sp("ce","c")+")"+sp("cq","²"):"x"+sp("cq","²");
   if(has("a"))e=sp("ca","a")+" · "+e;
   if(has("d"))e+=" + "+sp("cd","d");
   $("fnGen").innerHTML=(idx===6?'<div class="lbl">Scheitelpunktform</div>':"")+"f(x) = "+e;
@@ -330,9 +347,9 @@ function buildParams(){
     xrow.querySelector("#r_x").addEventListener("input",function(e){S.x=r1(parseFloat(e.target.value));$("xIn").classList.remove("bad");$("err").textContent="";update()});
   }
   plist().forEach(function(p){
-    var r=range(p);
+    var r=range(p),pl=p==="e"?"c":p;
     var row=document.createElement("div");row.className="prow p"+p;
-    row.innerHTML='<span class="nm">'+p+'</span><input type="text" inputmode="decimal" autocomplete="off" id="p_'+p+'" aria-label="Parameter '+p+'"><input type="range" id="r_'+p+'" min="'+r[0]+'" max="'+r[1]+'" step="'+STEP[p]+'" aria-label="Parameter '+p+' per Schieberegler">';
+    row.innerHTML='<span class="nm">'+pl+'</span><input type="text" inputmode="decimal" autocomplete="off" id="p_'+p+'" aria-label="Parameter '+pl+'"><input type="range" id="r_'+p+'" min="'+r[0]+'" max="'+r[1]+'" step="'+STEP[p]+'" aria-label="Parameter '+pl+' per Schieberegler">';
     box.appendChild(row);
     var t=row.querySelector("#p_"+p),rg=row.querySelector("#r_"+p);
     rg.addEventListener("input",function(){
@@ -352,7 +369,7 @@ function commitText(inp,key){
   if(isNaN(v)){inp.classList.add("bad");$("err").textContent="Bitte eine Zahl eingeben (z. B. 2,5).";return}
   v=r1(v);
   if(key==="a"&&v===0){inp.classList.add("bad");$("err").textContent="a darf nicht 0 sein.";return}
-  if(v<r[0]||v>r[1]){inp.classList.add("bad");$("err").textContent="Zulässiger Bereich für "+key+": "+fmt(r[0])+" bis "+fmt(r[1])+".";return}
+  if(v<r[0]||v>r[1]){inp.classList.add("bad");$("err").textContent="Zulässiger Bereich für "+(key==="e"?"c":key)+": "+fmt(r[0])+" bis "+fmt(r[1])+".";return}
   inp.classList.remove("bad");$("err").textContent="";
   S[key]=v;update(key);
 }
@@ -365,17 +382,27 @@ function syncInputs(skip){
     if(rg)rg.value=S[p];
   });
 }
+function fitCalc(){
+  document.querySelectorAll("#autosEx .calc").forEach(function(c){
+    var sp=c.firstChild;if(!sp||!sp.style)return;
+    sp.style.fontSize="";
+    var size=parseFloat(getComputedStyle(c).fontSize)||12;
+    sp.style.fontSize=size+"px";
+    var avail=c.clientWidth-2;
+    while(avail>0&&sp.offsetWidth>avail&&size>6){size-=0.5;sp.style.fontSize=size+"px"}
+  });
+}
+window.addEventListener("resize",fitCalc);
 function update(skip){
   $("yOut").textContent=idx===0?(S.has?fmt2(f(S.x)):"–"):fmt(f(S.x));
-  renderAutos();renderEquations();drawGraph();syncInputs(skip);
+  renderAutos();renderEquations();drawGraph();syncInputs(skip);fitCalc();
 }
 function show(i){
   idx=Math.max(0,Math.min(SECTIONS.length-1,i));
   S={x:2,a:1,e:0,d:0,pts:[],has:idx!==0};
-  var low=(idx===3||idx>=5);VIEW.ymin=low?-8:-2;VIEW.ymax=low?8:14;
+  VIEW.ymin=-9;VIEW.ymax=9;H=2*PAD+(VIEW.ymax-VIEW.ymin)*(W-2*PAD)/(VIEW.xmax-VIEW.xmin);$("g").setAttribute("viewBox","0 0 "+W+" "+H);
   $("xOk").classList.toggle("hide",idx!==0);
   if(idx===0)$("xIn").value="";
-  $("tbar").classList.toggle("hide",idx===0);
   $("next").classList.toggle("hide",idx===5);
   $("ind").textContent="Abschnitt "+(idx+1)+" von "+SECTIONS.length+" · "+SECTIONS[idx].title;
   $("prev").disabled=idx===0;$("next").disabled=idx===SECTIONS.length-1;
@@ -407,7 +434,7 @@ $("xOk").addEventListener("click",commitBB);
 $("xIn").addEventListener("blur",function(){$("xIn").classList.remove("bad");$("err").textContent="";if(idx!==0)syncInputs()});
 
 function go(d,gate){
-  if(d>0&&(idx===0||idx===5)&&!gate)return;
+  if(d>0&&idx===5&&!gate)return;
   var n=Math.max(0,Math.min(SECTIONS.length-1,idx+d));
   if(n!==idx)show(n);
 }
@@ -424,7 +451,7 @@ document.addEventListener("pointerup",function(e){
   var q=e.target.closest?e.target.closest(".auto.q"):null;
   if(!q)return;
   var now=Date.now();
-  if(now-lastTap<450){lastTap=0;if(idx===0||idx===5)go(1,true)}else lastTap=now;
+  if(now-lastTap<450){lastTap=0;if(idx===5)go(1,true)}else lastTap=now;
 });
 show(0);
 })();
